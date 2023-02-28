@@ -1,1 +1,81 @@
-PARTICIPANTS: use this file for creating the class diagram in mastery task 01
+@startuml
+class GetBookActivity {
+    - recommendationsServiceClient : RecommendationsServiceClient
+    - catalogDao : CatalogDao
+    + execute(GetBookRequest) : GetBookResponse
+}
+class GetPublishingStatusActivity {
+    + execute(GetPublishingStatusRequest) : GetPublishingStatusResponse
+}
+class RemoveBookFromCatalogActivity {
+    + execute(RemoveBookFromCatalogRequest) : RemoveBookFromCatalogResponse
+}
+class SubmitBookForPublishingActivity {
+    - publishingStatusDao : PublishingStatusDao
+    + execute(SubmitBookForPublishingRequest) : SubmitBookForPublishingResponse
+}
+class RecommendationsServiceClient {
+    - RecommendationsService : recommendationsService final
+    + getBookRecommendations(BookGenre) : List<BookRecommendation>
+}
+class CatalogDao {
+    - dynamoDBMapper : DynamoDBMapper
+    + getBookFromCatalog(String) : CatalogItemVersion
+    + getLatestVersionOfBook(String) : CatalogItemVersion
+}
+class PublishingStatusDao {
+    - ADDITIONAL_NOTES_PREFIX : String static final
+    - dynamoDBMapper : DynamoDBMapper final
+    - setPublishingStatus(String, PublishingRecordStatus, String) : PublishingStatusItem
+}
+class CatalogItemVersion {
+    - @DynamoDBHashKey bookId : String
+    - @DynamoDBRangeKey version : int
+    - inactive : boolean
+    - title : String
+    - author : String
+    - text : String
+    - genre : BookGenre
+    + getBookId() : String
+    + setBookId() : void
+    + getVersion() : int
+    + setVersion() : void
+    + getTitle() : String
+    + setTitle() : void
+    + getAuthor() : String
+    + setAuthor() : void
+    + getText() : String
+    + setText() : void
+    + getGenre : BookGenre
+    + setGenre : void
+    + isInactive : boolean
+    + setInactive : void
+}
+class PublishingStatusItem {
+    - @DynamoDBHashKey publishingRecordId : String
+    - @DynamoDBRangeKey status : PublishingRecordStatus
+    - statusMessage : String
+    - bookId : String
+    + getPublishingRecordId() : String
+    + setPulishingRecordId() : void
+    + getStatus() : PublishingRecordStatus
+    + setStatus() : void
+    + getStatusMessage() : String
+    + setStatusMessage() : void
+    + getBookId() : String
+    + setBookId() : void
+}
+class BookNotFoundException {
+    - serialVersionUID : long static final
+}
+class PublishingStatusNotFoundException {
+    - serialVersionUID : long static final
+}
+
+GetBookActivity --> CatalogDao
+GetBookActivity --> RecommendationsServiceClient
+SubmitBookForPublishingActivity --> PublishingStatusDao
+CatalogItemVersion --> CatalogDao
+PublishingStatusItem --> PublishingStatusDao
+CatalogDao --> BookNotFoundException
+@enduml

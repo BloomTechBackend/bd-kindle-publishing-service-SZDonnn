@@ -1,1 +1,15 @@
-PARTICIPANTS: use this file for creating the remove book from catalog diagram in mastery task 01
+@startuml
+actor User
+
+User -> CatalogDao : GET Request
+CatalogDao -> RemoveBookFromCatalogActivity : RemoveBookFromCatalogRequest
+RemoveBookFromCatalogActivity -> RemoveBookFromCatalogResponse : execute()
+alt Book not found
+RemoveBookFromCatalogActivity <-- RemoveBookFromCatalogResponse : BookNotFoundException
+CatalogDao <-- RemoveBookFromCatalogActivity : BookNotFoundException
+User <-- RemoveBookService : BookNotFoundException
+end
+RemoveBookFromCatalogActivity <-- RemoveBookFromCatalogResponse : removeBookFromCatalog()
+CatalogDao <-- RemoveBookFromCatalogActivity : removeBookFromCatalog()
+User <-- RemoveBookService : removeBookFromCatalog()
+@enduml

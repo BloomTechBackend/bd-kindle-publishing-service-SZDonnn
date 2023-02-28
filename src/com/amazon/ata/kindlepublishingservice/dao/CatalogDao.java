@@ -2,12 +2,10 @@ package com.amazon.ata.kindlepublishingservice.dao;
 
 import com.amazon.ata.kindlepublishingservice.dynamodb.models.CatalogItemVersion;
 import com.amazon.ata.kindlepublishingservice.exceptions.BookNotFoundException;
-import com.amazon.ata.kindlepublishingservice.publishing.KindleFormattedBook;
-import com.amazon.ata.kindlepublishingservice.utils.KindlePublishingUtils;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import org.apache.commons.lang3.StringUtils;
+import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
 
 import java.util.List;
 import javax.inject.Inject;
@@ -26,6 +24,15 @@ public class CatalogDao {
         this.dynamoDbMapper = dynamoDbMapper;
     }
 
+    public void removeBookFromCatalog(CatalogItemVersion book) {
+        if (book == null) {
+            throw new BookNotFoundException("Book not found or empty.");
+        }
+
+        book.setInactive(true);
+        dynamoDbMapper.save(book);
+    }
+
     /**
      * Returns the latest version of the book from the catalog corresponding to the specified book id.
      * Throws a BookNotFoundException if the latest version is not active or no version is found.
@@ -42,6 +49,7 @@ public class CatalogDao {
         return book;
     }
 
+
     // Returns null if no version exists for the provided bookId
     private CatalogItemVersion getLatestVersionOfBook(String bookId) {
         CatalogItemVersion book = new CatalogItemVersion();
@@ -54,7 +62,7 @@ public class CatalogDao {
 
         List<CatalogItemVersion> results = dynamoDbMapper.query(CatalogItemVersion.class, queryExpression);
         if (results.isEmpty()) {
-            return null;
+            throw new BookNotFoundException("Book not found.");
         }
         return results.get(0);
     }
