@@ -1,6 +1,7 @@
 package com.amazon.ata.kindlepublishingservice.publishing;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Stack;
 
 public class BookPublishRequestManager {
@@ -13,10 +14,10 @@ public class BookPublishRequestManager {
         bookPublishRequests.push(request);
     }
 
-    public BookPublishRequest getBookPublishRequestToProcess() {
+    public List<BookPublishRequest> getBookPublishRequestToProcess() {
         if (bookPublishRequests.empty()) {
             return null;
         }
-        return bookPublishRequests.pop();
+        return bookPublishRequests;
     }
 }
