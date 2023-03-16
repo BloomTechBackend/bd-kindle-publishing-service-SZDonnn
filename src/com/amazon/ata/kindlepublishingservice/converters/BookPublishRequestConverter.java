@@ -23,7 +23,7 @@ public class BookPublishRequestConverter {
 
         final String publishingRecordId = KindlePublishingUtils.generatePublishingRecordId();
 
-        return BookPublishRequest.builder()
+        return new BookPublishRequest.Builder()
             .withPublishingRecordId(publishingRecordId)
             .withText(request.getText())
             .withTitle(request.getTitle())

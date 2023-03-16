@@ -3,6 +3,9 @@ package com.amazon.ata.kindlepublishingservice.dao;
 import com.amazon.ata.kindlepublishingservice.dynamodb.models.CatalogItemVersion;
 import com.amazon.ata.kindlepublishingservice.exceptions.BookNotFoundException;
 
+import com.amazon.ata.kindlepublishingservice.publishing.BookPublishTask;
+import com.amazon.ata.kindlepublishingservice.publishing.KindleFormattedBook;
+import com.amazon.ata.kindlepublishingservice.utils.KindlePublishingUtils;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
@@ -11,8 +14,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class CatalogDao {
-
     private final DynamoDBMapper dynamoDbMapper;
+
 
     /**
      * Instantiates a new CatalogDao object.
@@ -43,6 +46,27 @@ public class CatalogDao {
         if (book.isInactive()) {
             throw new BookNotFoundException(String.format("No book found for id: %s", bookId));
         }
+        return book;
+    }
+
+    public CatalogItemVersion createOrUpdateBook(KindleFormattedBook kindleFormattedBook) {
+        String bookId = kindleFormattedBook.getBookId();
+        CatalogItemVersion book = new CatalogItemVersion();
+        if (bookId == null || bookId.isEmpty()) {
+            bookId = KindlePublishingUtils.generateBookId();
+            book.setBookId(bookId);
+            book.setTitle(kindleFormattedBook.getTitle());
+            book.setGenre(kindleFormattedBook.getGenre());
+            book.setText(kindleFormattedBook.getText());
+            book.setInactive(false);
+            dynamoDbMapper.save(book);
+        } else {
+            validateBookExists(bookId);
+            book = getBookFromCatalog(bookId);
+            removeBookFromCatalog(book);
+            dynamoDbMapper.save(book);
+        }
+
         return book;
     }
 

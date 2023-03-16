@@ -36,7 +36,7 @@ public class GetPublishingStatusActivity {
                             item.getBookId());
             publishingStatusRecordList.add(publishingStatusRecord);
         }
-
+        System.out.println(publishingStatusRecordList.size() + "   SSSSSSSSSSSSSSSSS");
         return GetPublishingStatusResponse.builder()
                 .withPublishingStatusHistory(publishingStatusRecordList)
                 .build();

@@ -32,7 +32,7 @@ public class SubmitBookForPublishingActivityTest {
     private PublishingStatusDao publishingStatusDao;
     @Mock
     private CatalogDao catalogDao;
-    @Mock
+
     private BookPublishRequestManager bookPublishRequestManager;
     @InjectMocks
     private SubmitBookForPublishingActivity activity;

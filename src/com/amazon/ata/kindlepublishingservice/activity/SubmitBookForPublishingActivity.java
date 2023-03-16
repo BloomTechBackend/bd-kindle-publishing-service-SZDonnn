@@ -16,6 +16,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
+import java.util.Objects;
 
 /**
  * Implementation of the SubmitBookForPublishingActivity for ATACurriculumKindlePublishingService's
@@ -25,9 +26,9 @@ import javax.inject.Inject;
  */
 public class SubmitBookForPublishingActivity {
 
-    private PublishingStatusDao publishingStatusDao;
-    private BookPublishRequestManager bookPublishRequestManager;
-    private CatalogDao catalogDao;
+    private final PublishingStatusDao publishingStatusDao;
+    private final BookPublishRequestManager bookPublishRequestManager;
+    private final CatalogDao catalogDao;
 
     /**
      * Instantiates a new SubmitBookForPublishingActivity object.
@@ -36,11 +37,10 @@ public class SubmitBookForPublishingActivity {
      */
     @Inject
     public SubmitBookForPublishingActivity(PublishingStatusDao publishingStatusDao,
-                                           BookPublishRequestManager bookPublishRequestManager,
                                            CatalogDao catalogDao) {
         this.publishingStatusDao = publishingStatusDao;
-        this.bookPublishRequestManager = bookPublishRequestManager;
         this.catalogDao = catalogDao;
+        this.bookPublishRequestManager = new BookPublishRequestManager(publishingStatusDao, catalogDao);
     }
 
     /**
@@ -59,10 +59,11 @@ public class SubmitBookForPublishingActivity {
         }
 
         // TODO: Submit the BookPublishRequest for processing
-        final BookPublishRequest bookPublishRequest = BookPublishRequestConverter.toBookPublishRequest(request);
+        BookPublishRequest bookPublishRequest = BookPublishRequestConverter.toBookPublishRequest(request);
         bookPublishRequestManager.addBookPublishRequest(bookPublishRequest);
 
-        PublishingStatusItem item =  publishingStatusDao.setPublishingStatus(bookPublishRequest.getPublishingRecordId(),
+        PublishingStatusItem item =  publishingStatusDao.setPublishingStatus(
+                bookPublishRequest.getPublishingRecordId(),
                 PublishingRecordStatus.QUEUED,
                 bookPublishRequest.getBookId());
 
