@@ -15,9 +15,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class BookPublisher {
-
     private static final Logger log = LogManager.getLogger(BookPublisher.class);
-
     private final ScheduledExecutorService scheduledExecutorService;
     private final Runnable publishTask;
     private boolean isRunning;

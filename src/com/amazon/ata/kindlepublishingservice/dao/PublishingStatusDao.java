@@ -7,8 +7,10 @@ import com.amazon.ata.kindlepublishingservice.utils.KindlePublishingUtils;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -76,5 +78,22 @@ public class PublishingStatusDao {
         item.setBookId(bookId);
         dynamoDbMapper.save(item);
         return item;
+    }
+
+    public List<PublishingStatusItem> getPublishingStatusItems(String publishingRecordId) {
+        PublishingStatusItem item = new PublishingStatusItem();
+        item.setPublishingRecordId(publishingRecordId);
+
+        DynamoDBQueryExpression<PublishingStatusItem> queryExpression =
+                new DynamoDBQueryExpression<PublishingStatusItem>().withHashKeyValues(item);
+
+        List<PublishingStatusItem> publishingStatusItemList = new ArrayList<>(dynamoDbMapper.query(
+                                                            PublishingStatusItem.class, queryExpression));
+
+        if (publishingStatusItemList.isEmpty()) {
+            throw new PublishingStatusNotFoundException("PublishingStatusItem not found.");
+        }
+
+        return publishingStatusItemList;
     }
 }
