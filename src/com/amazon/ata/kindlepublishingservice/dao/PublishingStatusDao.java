@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -80,17 +81,20 @@ public class PublishingStatusDao {
         return item;
     }
 
-    public List<PublishingStatusItem> getPublishingStatuses(String publishingStatusId) {
+    public List<PublishingStatusItem> getPublishingStatusItems(String publishingRecordId) {
         PublishingStatusItem item = new PublishingStatusItem();
-        item.setPublishingRecordId(publishingStatusId);
+        item.setPublishingRecordId(publishingRecordId);
 
         DynamoDBQueryExpression<PublishingStatusItem> queryExpression =
-                new DynamoDBQueryExpression<PublishingStatusItem>()
-                        .withHashKeyValues(item);
+                new DynamoDBQueryExpression<PublishingStatusItem>().withHashKeyValues(item);
 
-        PaginatedQueryList<PublishingStatusItem> publishingStatusItems =
-                dynamoDbMapper.query(PublishingStatusItem.class, queryExpression);
+        List<PublishingStatusItem> publishingStatusItemList = new ArrayList<>(dynamoDbMapper.query(
+                                                            PublishingStatusItem.class, queryExpression));
 
-        return publishingStatusItems;
+        if (publishingStatusItemList.isEmpty()) {
+            throw new PublishingStatusNotFoundException("PublishingStatusItem not found.");
+        }
+
+        return publishingStatusItemList;
     }
 }

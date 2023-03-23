@@ -1,29 +1,24 @@
 package com.amazon.ata.kindlepublishingservice.publishing;
 
-import com.amazon.ata.kindlepublishingservice.dao.CatalogDao;
-import com.amazon.ata.kindlepublishingservice.dao.PublishingStatusDao;
-
 import javax.inject.Inject;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public final class BookPublishRequestManager {
-    private final ConcurrentLinkedQueue<BookPublishRequest> bookPublishRequests = new ConcurrentLinkedQueue<>();
-    private final PublishingStatusDao publishingStatusDao;
-    private final CatalogDao catalogDao;
+public class BookPublishRequestManager {
+    private Queue<BookPublishRequest> bookPublishRequests;
+
     @Inject
-    public BookPublishRequestManager(PublishingStatusDao publishingStatusDao, CatalogDao catalogDao) {
-        this.publishingStatusDao = publishingStatusDao;
-        this.catalogDao = catalogDao;
+    public BookPublishRequestManager() {
+        this.bookPublishRequests = new ConcurrentLinkedQueue<>();
     }
 
-    public void addBookPublishRequest(BookPublishRequest request) {
-        bookPublishRequests.add(request);
+    public void addBookPublishRequest(BookPublishRequest bookPublishRequest) {
+        this.bookPublishRequests.add(bookPublishRequest);
     }
 
     public BookPublishRequest getBookPublishRequestToProcess() {
-        if (bookPublishRequests.isEmpty()) {
-            return null;
-        }
+        if (bookPublishRequests.isEmpty()) return null;
+        System.out.println("Size === " + bookPublishRequests.size());
         return bookPublishRequests.remove();
     }
 }
